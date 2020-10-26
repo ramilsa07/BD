@@ -3,11 +3,10 @@ CREATE DATABASE music;
 USE music;
 
 CREATE TABLE genre(
-name VARCHAR(45) NOT NULL UNIQUE, #COLLATE utf8_general_ci
+name VARCHAR(45) NOT NULL UNIQUE,
 PRIMARY KEY(name)
 )
 ENGINE=INNODB DEFAULT CHARSET=utf8;
-#COLLATE utf8_general_ci;
 
 CREATE TABLE album(
 id INT NOT NULL AUTO_INCREMENT,
@@ -136,18 +135,18 @@ INSERT INTO music_track VALUES(5, "song1.2", 1, "mus1", 248);
 
 
 # I. Запросы с использованием одной таблицы.
-# 1. Выборка без использования фразы WHERE. ALL, DISTINCT. Использование фразы CASE.
+# Выборка без использования фразы WHERE. ALL, DISTINCT. Использование фразы CASE.
 
 -- SELECT id, name, CASE WHEN lable_name IS NULL THEN "No lable :(" ELSE "Have lable" END lable_name FROM musican;
 -- SELECT DISTINCT musican_name, duration FROM music_track WHERE duration > ALL(SELECT duration FROM another_tracks);
 
-# 2. Выборка вычисляемых значений. Использование псевдонимов таблиц.
+# Выборка вычисляемых значений. Использование псевдонимов таблиц.
 
 -- SELECT song_name AS "Название_песни", musican_name AS "Имя_музыканта", duration AS "Длительность" 
 -- FROM music_track
 -- WHERE duration > 200;
 
-# 3. Синтаксис фразы WHERE. BETWEEN, IS [NOT] NULL, LIKE, UPPER, LOWER. IN, EXISTS.
+# Синтаксис фразы WHERE. BETWEEN, IS [NOT] NULL, LIKE, UPPER, LOWER. IN, EXISTS.
 
 -- SELECT * FROM music_track WHERE duration > 200;
 -- SELECT * FROM music_track WHERE duration BETWEEN 190 AND 240;
@@ -159,12 +158,12 @@ INSERT INTO music_track VALUES(5, "song1.2", 1, "mus1", 248);
 -- SELECT id, UPPER(name), LOWER(lable_name) FROM musican;
 -- SELECT * FROM music_track WHERE EXISTS(SELECT * FROM song WHERE name LIKE "song1._");
 
-# 4. Выборка с упорядочением. ORDER BY, ASC, DESC.
+# Выборка с упорядочением. ORDER BY, ASC, DESC.
 
 -- SELECT * FROM genre ORDER BY name ASC;
 -- SELECT * FROM genre ORDER BY name DESC;
 
-# 5. Агрегирование данных. Агрегатные SQL-функции (COUNT, SUM, AVG, MIN, MAX).
+# Агрегирование данных. Агрегатные SQL-функции (COUNT, SUM, AVG, MIN, MAX).
 
 -- SELECT musican_name, SUM(duration) FROM music_track GROUP BY musican_name;
 -- SELECT musican_name, ROUND(AVG(duration),1) FROM music_track GROUP BY musican_name;
@@ -172,14 +171,14 @@ INSERT INTO music_track VALUES(5, "song1.2", 1, "mus1", 248);
 -- SELECT musican_name, MAX(duration) FROM music_track GROUP BY musican_name;
 -- SELECT musican_name, COUNT(song_name) FROM music_track GROUP BY musican_name;
 
-# 6. Агрегирование данных без и с использованием фразы GROUP BY. Фраза HAVING.
+# Агрегирование данных без и с использованием фразы GROUP BY. Фраза HAVING.
 
 -- SELECT musican_name, SUM(duration) FROM music_track GROUP BY musican_name HAVING SUM(duration) > 300;
 
 ########################################################################################################
 # II. Запросы с использованием нескольких таблиц.
 # II.1. Бинарные операции и соединения.
-# 1. Реализация EXEPT (MINUS), INTERSECT, UNION.
+# Реализация EXEPT (MINUS), INTERSECT, UNION.
 
 # EXCEPT (MINUS) минус
 -- SELECT DISTINCT * FROM another_tracks WHERE (song_name, musican_name, duration)
@@ -192,16 +191,12 @@ INSERT INTO music_track VALUES(5, "song1.2", 1, "mus1", 248);
 # UNION объединение
 -- SELECT * FROM another_tracks UNION SELECT * FROM another_tracks1
 
-# 2. Реализация операции деления отношений.
-# НИЧЕГО НЕ НАЙДЕНО!!!! ЧТО ЭТО ВООБЩЕ?????
 
-# 3. Эквисоединение, естественное соединение, композиция. Внутренние и внешние соединения.
-# Пока оставим эту затею
-
-# 4. Соединения таблиц с фразой JOIN и без неё. USING. CROSS JOIN (INNER JOIN), LEFT JOIN, RIGHT JOIN.
+# Соединения таблиц с фразой JOIN и без неё. USING. CROSS JOIN (INNER JOIN), LEFT JOIN, RIGHT JOIN.
 
 -- SELECT * FROM song JOIN music_track WHERE music_track.song_name = song.name;
 -- SELECT * FROM genre NATURAL JOIN genre_has_song;
+-- SELECT * FROM genre CROSS JOIN genre_has_song;
 -- SELECT * FROM song INNER JOIN music_track WHERE music_track.song_name = song.name;
 
 -- SELECT * FROM song LEFT OUTER JOIN music_track ON music_track.song_name = song.name;
@@ -215,33 +210,72 @@ INSERT INTO music_track VALUES(5, "song1.2", 1, "mus1", 248);
 -- SELECT * FROM song RIGHT JOIN album USING(id);
 -- SELECT * FROM song JOIN album USING(id);
 
-# 5. Θ-соединение.
 
-# 6. Соединение таблицы с самой собой. Удаление дубликатов записей в таблице.
+# Соединение таблицы с самой собой. Удаление дубликатов записей в таблице.
 -- SELECT another_tracks.* FROM another_tracks 
--- JOIN another_tracks AS us ON another_tracks.musican_name = us.musican_name
+-- JOIN another_tracks AS us ON another_tracks.musican_name = us.musican_name #USING(musican_name)
 -- WHERE another_tracks.id = us.id
 -- ORDER BY us.id;
 
-# III. Индексы. Хранимые процедуры. Триггеры.
--- 1. Создайте индексы и обоснуйте их необходимость для выбранных таблиц.
+-- Создайте индексы и обоснуйте их необходимость для выбранных таблиц.
 -- CREATE INDEX duration ON music_track(duration);
 -- # Индекс поможет быстро находить, например, небольшие треки для установки их на рингтон:)
 -- SELECT * FROM music_track WHERE duration < 200;
 
--- 2. Реализуйте триггеры {BEFORE|AFTER}{INSERT|UPDATE|DELETE}.
+-- Реализуйте триггеры.
 -- DELIMITER // 
 -- CREATE TRIGGER duration_Insert_Update AFTER INSERT ON music_track 
 -- FOR EACH ROW BEGIN
--- SET duration = duration + 2;
+-- SET music_track.duration = music_track.duration + 2;
 --   END; // 
 -- DELIMITER ;
 
-CREATE DEFINER = duration_Insert_Update TRIGGER music_track BEFORE INSERT ON
-BEGIN
-SET duration = duration + 2;
-END;
+-- DELIMITER // 
+-- CREATE FUNCTION half_duration (time INT )
+-- RETURNS INT 
+-- BEGIN
+--    RETURN time/2;
+--  END; // 
+-- DELIMITER ;
+-- SELECT song_name, half_duration(duration) FROM music_track;
 
--- 3. Реализуйте хранимые процедуры и функции для всех типов входных параметров для коррелированных запросов и соединений.
+-- Реализуйте хранимые процедуры
 
+-- DELIMITER // 
+-- CREATE PROCEDURE `check` (IN `number` INT, OUT result INT)
+-- BEGIN
+--     IF `number` <25  THEN SET result = 150;
+--     ELSE SET result = 100;
+--     END IF;
+-- END// 
+
+-- DELIMITER ;
+-- DELIMITER // 
+
+-- CREATE PROCEDURE `checkin` (IN id INT)
+-- BEGIN
+--     SELECT * from user where user.id = id;
+-- END// 
+
+-- DELIMITER ;
+-- DELIMITER // 
+
+-- CREATE PROCEDURE `checkout` (OUT result varchar(50))
+-- BEGIN
+-- DECLARE res varchar(50) DEFAULT "";
+--      SELECT login into res from user where user.id = 1;
+--      set result=res;
+-- END// 
+
+-- DELIMITER ;
+-- SET @res=0;
+-- SELECT @res;
+-- CALL `check` (2, @res);
+
+-- SELECT @res;
+-- CALL `check` (255, @res);
+-- CALL `checkin`(1);
+-- SET @result="";
+-- CALL `checkout`(@result);
+-- SELECT @result;
 
