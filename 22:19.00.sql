@@ -254,7 +254,7 @@ INSERT INTO music_track VALUES(5, "song1.2", 1, "mus1", 248);
 
 -- CREATE PROCEDURE `checkin` (IN id INT)
 -- BEGIN
---     SELECT * from user where user.id = id;
+--     SELECT * from musican where musican.id = id;
 -- END// 
 
 -- DELIMITER ;
@@ -263,7 +263,7 @@ INSERT INTO music_track VALUES(5, "song1.2", 1, "mus1", 248);
 -- CREATE PROCEDURE `checkout` (OUT result varchar(50))
 -- BEGIN
 -- DECLARE res varchar(50) DEFAULT "";
---      SELECT login into res from user where user.id = 1;
+--      SELECT name INTO res from musican where musican.id = 1;
 --      set result=res;
 -- END// 
 
